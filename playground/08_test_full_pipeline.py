@@ -26,12 +26,12 @@ print("-" * 40)
 
 all_docs = []
 sebi = SEBIScraper(category="circulars")
-sebi_docs = sebi.fetch_documents(count=3)
+sebi_docs = sebi.fetch_documents(count=10)
 print(f"SEBI: {len(sebi_docs)} documents")
 all_docs.extend(sebi_docs)
 
 rbi = RBIScraper()
-rbi_docs = rbi.fetch_documents(count=3)
+rbi_docs = rbi.fetch_documents(count=15)
 print(f"RBI:  {len(rbi_docs)} documents")
 all_docs.extend(rbi_docs)
 
