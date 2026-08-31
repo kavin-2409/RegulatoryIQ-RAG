@@ -1,0 +1,22 @@
+# Lightweight dependencies for CI (unit tests only).
+# The full requirements.txt includes torch/sentence-transformers (~2 GB)
+# which is too heavy for GitHub Actions free runners.
+
+# Testing
+pytest==8.2.0
+
+# Web scraping (used in unit tests)
+requests==2.32.3
+beautifulsoup4==4.12.3
+tenacity==8.3.0
+loguru==0.7.2
+
+# Data validation
+pydantic==2.7.0
+
+# API framework
+fastapi==0.111.0
+httpx==0.27.0
+
+# Environment
+python-dotenv==1.0.1

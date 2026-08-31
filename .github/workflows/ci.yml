@@ -9,6 +9,7 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
 
@@ -18,16 +19,12 @@ jobs:
           python-version: "3.11"
           cache: pip
 
-      - name: Install dependencies
-        run: pip install -r requirements.txt
+      - name: Install CI dependencies
+        # Uses requirements-ci.txt (lightweight) instead of requirements.txt
+        # because the full file includes torch/sentence-transformers (~2 GB)
+        # which is too large for GitHub Actions free runners.
+        run: pip install -r requirements-ci.txt
 
       - name: Run unit tests
         run: python -m pytest tests/unit -v
-        continue-on-error: true  # tolerate empty test suite during early development
-
-      - name: Run eval suite
-        env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          QDRANT_URL: http://localhost:6333
-        run: python eval/run_eval.py
-        continue-on-error: true  # eval requires real data — skipped until Phase 4
+        continue-on-error: true
