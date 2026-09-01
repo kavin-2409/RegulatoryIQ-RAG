@@ -16,8 +16,9 @@ node_modules/
 .next/
 frontend/.env.local
 
-# Eval results (we DO commit these — remove this line if you want to exclude them)
-# eval/results/
+# Eval generated outputs (JSON + HTML) — run 10_run_eval.py to regenerate
+evaluation/results.json
+evaluation/report.html
 
 # OS
 .DS_Store
