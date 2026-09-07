@@ -1,17 +1,38 @@
 version: "3.9"
 
 services:
+
   qdrant:
     image: qdrant/qdrant:latest
     ports:
       - "6333:6333"
     volumes:
       - qdrant_data:/qdrant/storage
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6333/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
-  redis:
-    image: redis:7-alpine
+  backend:
+    build: .
     ports:
-      - "6379:6379"
+      - "8000:8000"
+    environment:
+      # Qdrant is a sibling container — use the service name, not localhost
+      - QDRANT_URL=http://qdrant:6333
+      # Ollama runs on the host machine — host.docker.internal resolves to the host
+      # on Windows and Mac. On Linux add: extra_hosts: [host-gateway]
+      - OLLAMA_URL=http://host.docker.internal:11434/api/chat
+      - OLLAMA_MODEL=phi3:latest
+      - ENVIRONMENT=development
+      - LOG_LEVEL=INFO
+    depends_on:
+      qdrant:
+        condition: service_healthy
+    # On Linux, host.docker.internal is not automatic — uncomment the line below:
+    # extra_hosts:
+    #   - "host.docker.internal:host-gateway"
 
 volumes:
   qdrant_data:

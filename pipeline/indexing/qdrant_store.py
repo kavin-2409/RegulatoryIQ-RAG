@@ -1,3 +1,4 @@
+import os
 from loguru import logger
 from qdrant_client import QdrantClient
 from qdrant_client.models import (
@@ -36,7 +37,7 @@ class QdrantStore:
         → uses metadata filters on top of vector similarity
     """
 
-    def __init__(self, url: str = "http://localhost:6333"):
+    def __init__(self, url: str = os.getenv("QDRANT_URL", "http://localhost:6333")):
         self.client = QdrantClient(url=url)
         self._ensure_collection()
 

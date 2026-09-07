@@ -1,0 +1,28 @@
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# Node / frontend build
+frontend/node_modules/
+frontend/dist/
+
+# Local data (never bake into the image)
+data/
+evaluation/results.json
+evaluation/report.html
+
+# Secrets
+.env
+
+# Git / IDE
+.git/
+.github/
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db

@@ -135,7 +135,8 @@ RegulatoryIQ-RAG/
 ├── scripts/
 │   └── 10_run_eval.py       # Phase 6 evaluation entry point
 ├── playground/              # Step-by-step learning scripts (01–10)
-├── docker-compose.yml       # Qdrant + Redis
+├── Dockerfile               # Backend container image
+├── docker-compose.yml       # Qdrant + FastAPI backend
 ├── requirements.txt
 └── requirements-ci.txt      # Lightweight CI deps (no torch)
 ```
@@ -144,10 +145,10 @@ RegulatoryIQ-RAG/
 
 ## Prerequisites
 
-- Python 3.10+
-- [Docker Desktop](https://www.docker.com/products/docker-desktop/) (for Qdrant)
-- [Ollama](https://ollama.com/) (for local LLM)
-- Node.js 18+ (for frontend)
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/)
+- [Ollama](https://ollama.com/) (runs on the host, outside Docker)
+- Node.js 18+ (for the frontend only)
+- Python 3.10+ (for ingestion scripts + evaluation)
 
 ---
 
@@ -160,64 +161,44 @@ git clone https://github.com/kavin-2409/RegulatoryIQ-RAG.git
 cd RegulatoryIQ-RAG
 ```
 
-### 2. Create a virtual environment
+### 2. Start Ollama and pull the LLM
 
 ```bash
-python -m venv .venv
-# Windows
-.venv\Scripts\activate
-# Mac/Linux
-source .venv/bin/activate
-```
-
-### 3. Install Python dependencies
-
-```bash
-pip install -r requirements.txt
-```
-
-### 4. Start Qdrant (vector database)
-
-```bash
-docker-compose up -d
-```
-
-Qdrant UI available at http://localhost:6333/dashboard
-
-### 5. Start Ollama and pull the LLM
-
-```bash
-# In a separate terminal
+# In a separate terminal — Ollama runs on the host, not in Docker
 ollama serve
 
 # Pull phi3 (2.2 GB, one-time download)
 ollama pull phi3:latest
 ```
 
-### 6. Configure environment
+### 3. Start Qdrant + backend with Docker Compose
 
 ```bash
-cp .env.example .env
-# No API keys needed — everything runs locally
+docker-compose up -d
 ```
 
-### 7. Ingest documents
+This starts:
+- **Qdrant** on port 6333 (vector database)
+- **FastAPI backend** on port 8000 (waits for Qdrant to be healthy first)
+
+Qdrant dashboard: http://localhost:6333/dashboard  
+API docs: http://localhost:8000/docs
+
+### 4. Ingest documents (one-time setup)
 
 ```bash
+# Install Python deps for the ingestion scripts
+python -m venv .venv
+.venv\Scripts\activate       # Windows
+# source .venv/bin/activate  # Mac/Linux
+pip install -r requirements.txt
+
 python playground/08_test_full_pipeline.py
 ```
 
 This scrapes SEBI and RBI, chunks the documents, embeds them, and stores them in Qdrant.
 
-### 8. Start the backend
-
-```bash
-uvicorn backend.main:app --reload
-```
-
-API running at http://localhost:8000 — docs at http://localhost:8000/docs
-
-### 9. Start the frontend
+### 5. Start the frontend
 
 ```bash
 cd frontend
@@ -310,6 +291,7 @@ This project was built as a learning journey from zero — no prior LLM/RAG/vect
 | 4 | FastAPI backend with typed request/response models, CORS, health check |
 | 5 | React + Vite + Tailwind chat UI with source filter and citation cards |
 | 6 | Evaluation framework: 4 local metrics, 10-question dataset, HTML report |
+| 7 | Docker Compose for full stack (Qdrant + FastAPI backend), configurable env vars |
 
 ---
 

@@ -1,3 +1,4 @@
+import os
 import requests
 from loguru import logger
 
@@ -8,8 +9,8 @@ from generation.prompts.templates import SYSTEM_PROMPT, build_user_prompt
 from generation.guardrails import is_grounded, score_confidence
 
 
-OLLAMA_URL = "http://localhost:11434/api/chat"
-OLLAMA_MODEL = "phi3:latest"
+OLLAMA_URL = os.getenv("OLLAMA_URL", "http://localhost:11434/api/chat")
+OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "phi3:latest")
 
 
 class RAGGenerator:
