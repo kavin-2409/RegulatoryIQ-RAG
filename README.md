@@ -154,59 +154,113 @@ RegulatoryIQ-RAG/
 
 ## Setup & Run
 
-### 1. Clone the repo
+> **First time?** Follow all steps below in order.  
+> **Coming back?** Jump straight to [Daily use](#daily-use).
+
+---
+
+### First-time setup
+
+#### 1. Clone the repo
 
 ```bash
 git clone https://github.com/kavin-2409/RegulatoryIQ-RAG.git
 cd RegulatoryIQ-RAG
 ```
 
-### 2. Start Ollama and pull the LLM
+#### 2. Install Ollama and pull the LLM
+
+Download and install Ollama from https://ollama.com, then:
 
 ```bash
-# In a separate terminal — Ollama runs on the host, not in Docker
-ollama serve
-
-# Pull phi3 (2.2 GB, one-time download)
 ollama pull phi3:latest
 ```
 
-### 3. Start Qdrant + backend with Docker Compose
+This is a 2.2 GB one-time download. Ollama always runs on the host (outside Docker).
+
+#### 3. Set up the Python environment
 
 ```bash
+python -m venv .venv
+
+# Windows
+.venv\Scripts\activate
+
+# Mac / Linux
+source .venv/bin/activate
+
+pip install -r requirements.txt
+```
+
+#### 4. Start all services
+
+```bash
+# Terminal 1 — keep this running
+ollama serve
+
+# Terminal 2
 docker-compose up -d
 ```
 
-This starts:
+`docker-compose up` starts:
 - **Qdrant** on port 6333 (vector database)
-- **FastAPI backend** on port 8000 (waits for Qdrant to be healthy first)
+- **FastAPI backend** on port 8000 (waits for Qdrant health check first)
 
-Qdrant dashboard: http://localhost:6333/dashboard  
-API docs: http://localhost:8000/docs
+Verify everything is up — open http://localhost:8000/health in your browser.  
+You should see: `{"status":"ok","qdrant":true,"ollama":true,...}`
 
-### 4. Ingest documents (one-time setup)
+#### 5. Ingest documents (one-time)
 
 ```bash
-# Install Python deps for the ingestion scripts
-python -m venv .venv
-.venv\Scripts\activate       # Windows
-# source .venv/bin/activate  # Mac/Linux
-pip install -r requirements.txt
-
 python playground/08_test_full_pipeline.py
 ```
 
-This scrapes SEBI and RBI, chunks the documents, embeds them, and stores them in Qdrant.
+This scrapes SEBI and RBI circulars, chunks them, embeds them, and stores them in Qdrant. Takes 2–5 minutes depending on your connection.
 
-### 5. Start the frontend
+#### 6. Install frontend dependencies (one-time)
 
 ```bash
 cd frontend
 npm install
-npm run dev
+cd ..
 ```
 
-Open http://localhost:3000 — ask your first question.
+---
+
+### Daily use
+
+Every time you want to use RegulatorIQ after the first-time setup:
+
+```bash
+# Terminal 1 — local LLM
+ollama serve
+
+# Terminal 2 — Qdrant + backend
+docker-compose up -d
+
+# Terminal 3 — frontend
+cd frontend && npm run dev
+```
+
+Open **http://localhost:3000** and ask your first question.
+
+To stop everything:
+
+```bash
+docker-compose down
+# Close the ollama terminal (Ctrl+C)
+```
+
+---
+
+### Useful URLs
+
+| URL | What it is |
+|---|---|
+| http://localhost:3000 | Chat UI (React frontend) |
+| http://localhost:8000/docs | FastAPI interactive API docs |
+| http://localhost:8000/health | System health check (Qdrant + Ollama status) |
+| http://localhost:6333/dashboard | Qdrant dashboard (vector DB) |
 
 ---
 
